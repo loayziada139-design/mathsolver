@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MathSolver</title>
+<style>
+:root {
+  --site-primary: #1677F9;
+  --site-secondary: #0D1B35;
+  --site-background: #071225;
+  --site-on-primary: #FFFFFF;
+  --site-on-secondary: #FFFFFF;
+  --site-on-background: #F5F8FF;
+  --site-font-body: "Segoe UI", Tahoma, Arial, sans-serif;
+  --site-font-heading: "Segoe UI", Tahoma, Arial, sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  color-scheme: dark light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--site-font-body); background: var(--site-background); color: var(--site-on-background); }
+.app-root { min-height: 100vh; width: 100%; background-color: var(--site-background); color: var(--site-on-background); border-radius: 0; overflow: hidden; position: relative; }
+.topbar { max-width: 1100px; margin: auto; padding: calc(22px * var(--site-spacing-scale)) 22px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.brand { display:flex; align-items:center; gap:12px; font-weight:800; font-size:22px; letter-spacing:-.5px; }
+.brand-mark { width:42px; height:42px; border-radius:14px; display:grid; place-items:center; background:var(--site-primary); color:white; box-shadow:0 8px 24px #1677f944; font-size:24px; }
+.pill { border:1px solid #29415f; background:#10213c; color:#a9c9ff; padding:8px 13px; border-radius:999px; font-size:13px; }
+.hero { max-width:1100px; margin:auto; padding:48px 22px 28px; display:grid; grid-template-columns:1.1fr .9fr; align-items:center; gap:32px; }
+.eyebrow { display:inline-flex; align-items:center; gap:8px; color:#70b0ff; background:#10284a; border:1px solid #244b7b; border-radius:999px; padding:8px 13px; font-size:13px; font-weight:700; }
+h1 { font-family:var(--site-font-heading); font-size:calc(48px * var(--site-heading-scale)); line-height:1.12; margin:20px 0 16px; letter-spacing:-1.8px; }
+.gradient { color:#5ba6ff; }
+.lead { color:#aab9d1; font-size:17px; line-height:1.9; max-width:540px; margin:0; }
+.hero-art { min-height:260px; border-radius:calc(28px * var(--site-radius-scale)); border:1px solid #1c3557; background:radial-gradient(circle at 50% 40%,#163e73 0,#0c1d38 55%,#09152a 100%); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+.hero-art:before,.hero-art:after { content:""; position:absolute; border:1px solid #2c72bf; border-radius:50%; opacity:calc(.4 * var(--site-decoration-opacity)); }
+.hero-art:before { width:270px;height:270px; }
+.hero-art:after { width:340px;height:340px; }
+.math-card { position:relative; z-index:1; background:#0a1830; border:1px solid #315987; border-radius:18px; padding:25px 30px; transform:rotate(-4deg); box-shadow:0 22px 60px #0006; text-align:center; }
+.math-card .formula { font-size:27px; color:#f7faff; margin:8px 0; direction:ltr; }
+.math-card .small { color:#68adff; font-size:14px; margin-top:12px; }
+main { max-width:1100px; margin:auto; padding:18px 22px 70px; }
+.solver-card { background:light-dark(#ffffff,#0d1b31); color:light-dark(#12223a,#f5f8ff); border:1px solid light-dark(#dbe5f2,#203653); border-radius:calc(24px * var(--site-radius-scale)); padding:calc(28px * var(--site-spacing-scale)); box-shadow:0 18px 60px #0002; }
+.section-head { display:flex; align-items:flex-start; justify-content:space-between; gap:15px; margin-bottom:22px; }
+.section-head h2 { margin:0 0 7px; font-size:25px; }
+.section-head p { margin:0; color:light-dark(#64748b,#9aabc4); line-height:1.7; }
+.status { font-size:12px; background:#e6f8ee; color:#18794e; border-radius:999px; padding:7px 10px; white-space:nowrap; }
+.input-row { display:flex; gap:12px; direction:ltr; }
+#equation { flex:1; min-width:0; border:1px solid light-dark(#cad7e8,#2b4364); border-radius:14px; padding:17px 18px; font-size:19px; font-family:ui-monospace,Consolas,monospace; color:light-dark(#14243c,#f5f8ff); background:light-dark(#f8fbff,#09162a); outline:none; }
+#equation:focus { border-color:var(--site-primary); box-shadow:0 0 0 3px #1677f922; }
+button { font:inherit; cursor:pointer; border:0; }
+.solve-btn { background:var(--site-primary); color:white; border-radius:14px; padding:0 27px; font-weight:800; min-height:56px; box-shadow:0 8px 20px #1677f933; }
+.solve-btn:hover { filter:brightness(1.08); transform:translateY(-1px); }
+.hint { font-size:13px; color:light-dark(#718096,#91a4c0); margin:10px 3px 0; }
+.examples { display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin-top:21px; }
+.examples-label { font-size:13px; color:light-dark(#64748b,#9aabc4); margin-left:3px; }
+.example { border:1px solid light-dark(#d9e4f2,#29415f); background:light-dark(#f3f7fd,#11233d); color:light-dark(#315074,#c4d9f7); border-radius:10px; padding:9px 12px; direction:ltr; font-family:ui-monospace,Consolas,monospace; }
+.example:hover { border-color:var(--site-primary); }
+.result { display:none; margin-top:23px; border:1px solid light-dark(#d6e6f8,#294666); background:light-dark(#f7fbff,#09182d); border-radius:17px; padding:22px; }
+.result.show { display:block; }
+.result h3 { margin:0 0 15px; font-size:18px; }
+.answer { direction:ltr; text-align:center; font-size:30px; font-weight:800; color:#40a0ff; background:light-dark(#eaf4ff,#10294a); padding:18px; border-radius:13px; margin-bottom:18px; overflow-wrap:anywhere; }
+.steps { display:grid; gap:10px; }
+.step { display:flex; gap:12px; align-items:flex-start; color:light-dark(#344760,#d1def0); line-height:1.7; }
+.step-num { flex:0 0 27px; height:27px; display:grid; place-items:center; border-radius:9px; background:#1677f9; color:white; font-weight:800; font-size:13px; }
+.step-math { direction:ltr; font-family:ui-monospace,Consolas,monospace; font-size:16px; }
+.error { color:#e45b68; background:light-dark(#fff0f1,#351923); border:1px solid #a53b4a; border-radius:12px; padding:13px 15px; margin-top:16px; display:none; }
+.features { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-top:22px; }
+.feature { background:light-dark(#ffffff,#0d1b31); border:1px solid light-dark(#dbe5f2,#203653); border-radius:18px; padding:20px; }
+.feature-icon { width:39px;height:39px; display:grid;place-items:center;border-radius:12px;background:#10294a;color:#6db4ff;font-size:20px;margin-bottom:13px; }
+.feature h3 { margin:0 0 7px; font-size:16px; }
+.feature p { margin:0; color:light-dark(#64748b,#9aabc4); font-size:13px; line-height:1.8; }
+footer { border-top:1px solid #1d304b; text-align:center; color:#8193ae; padding:22px; font-size:12px; }
+@media(max-width:760px) { .hero { grid-template-columns:1fr; padding-top:25px; } h1 { font-size:calc(38px * var(--site-heading-scale)); } .hero-art { min-height:220px; } .input-row { flex-direction:column; } .solve-btn { min-height:52px; } .features { grid-template-columns:1fr; } .section-head { flex-direction:column; } }
+@media(prefers-color-scheme:light) { .app-root { background-color:var(--site-background); } }
+
+
+/* Interactive math symbol keyboard */
+.symbol-keyboard { margin-top:24px; padding-top:20px; border-top:1px solid light-dark(#e0e8f2,#263d5b); }
+.symbol-keyboard h3 { margin:0 0 6px; font-size:18px; }
+.symbol-keyboard > p { margin:0 0 15px; color:light-dark(#64748b,#9aabc4); font-size:13px; line-height:1.7; }
+.symbol-grid { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:9px; direction:ltr; }
+.symbol-key { min-height:45px; border:1px solid light-dark(#d9e4f2,#29415f); background:light-dark(#f3f7fd,#11233d); color:light-dark(#24466b,#d5e6ff); border-radius:10px; font-size:19px; font-weight:700; }
+.symbol-key:hover { border-color:var(--site-primary); background:light-dark(#e8f2ff,#17365c); }
+.symbol-key.symbol-delete,.symbol-key.symbol-clear { font-size:14px; }
+@media(max-width:520px) { .symbol-grid { grid-template-columns:repeat(5,minmax(0,1fr)); gap:7px; } .symbol-key { min-height:43px; } }
+
+/* Ready examples */
+.ready-examples { margin-top:24px; padding-top:20px; border-top:1px solid light-dark(#e0e8f2,#263d5b); }
+.ready-examples h3 { margin:0 0 6px; font-size:18px; }
+.ready-examples > p { margin:0 0 15px; color:light-dark(#64748b,#9aabc4); font-size:13px; line-height:1.7; }
+.example-groups { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.example-group { border:1px solid light-dark(#d9e4f2,#29415f); border-radius:14px; overflow:hidden; background:light-dark(#f8fbff,#0a1930); }
+.example-group summary { cursor:pointer; padding:14px; font-weight:800; color:light-dark(#294766,#d5e6ff); list-style:none; display:flex; align-items:center; gap:9px; }
+.example-group summary::-webkit-details-marker { display:none; }
+.example-group summary:after { content:"＋"; margin-inline-start:auto; color:#5ba6ff; }
+.example-group[open] summary:after { content:"−"; }
+.example-list { display:grid; gap:7px; padding:0 12px 12px; }
+.example-list .example { width:100%; text-align:left; }
+.applications { margin-top:28px; padding:28px; border:1px solid #24466e; border-radius:24px; background:linear-gradient(135deg,#0d2342,#09162a 70%); color:#f5f8ff; overflow:hidden; position:relative; }
+.applications:before { content:"∑  π  √  ∫  ∞"; position:absolute; inset:auto 10px 0 auto; font-size:clamp(40px,8vw,88px); letter-spacing:12px; color:#6bb2ff; opacity:.07; direction:ltr; pointer-events:none; }
+.applications-head { text-align:center; max-width:720px; margin:0 auto 22px; position:relative; }
+.applications-kicker { color:#76b8ff; font-size:12px; font-weight:800; letter-spacing:1.5px; }
+.applications h2 { margin:8px 0 10px; font-size:clamp(23px,4vw,32px); }
+.applications-head p { color:#b5c6df; line-height:1.8; margin:0; }
+.application-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:13px; position:relative; }
+.application-item { min-height:150px; padding:18px; border:1px solid #29496d; border-radius:16px; background:#102746cc; }
+.application-symbol { width:43px; height:43px; display:grid; place-items:center; border-radius:13px; background:#1b4777; color:#8bc5ff; font-size:23px; margin-bottom:12px; }
+.application-item h3 { margin:0 0 7px; font-size:16px; color:#fff; }
+.application-item p { margin:0; color:#b5c6df; font-size:13px; line-height:1.75; }
+.application-note { margin:18px 0 0; text-align:center; color:#8fb5df; font-size:13px; position:relative; }
+@media(max-width:760px) { .example-groups,.application-grid { grid-template-columns:1fr; } .applications { padding:21px; } }
+
+</style>
+</head>
+<body>
+<div class="app-root" data-sites-preview-theme="custom">
+<div style="text-align:center;padding:10px 16px 0;color:#70b0ff;font-size:14px;font-weight:700;letter-spacing:.3px;">Created by Loay Zyada</div>
+<header class="topbar">
+  <div class="brand"><div class="brand-mark">∑</div><span>Math<span class="gradient">Solver</span></span></div>
+  <div class="pill">✦ مساعدك الرياضي الذكي</div>
+</header>
+<section class="hero">
+  <div>
+    <div class="eyebrow">✦ افهم الحل، مش النتيجة بس</div>
+    <h1>حلّ معادلاتك<br><span class="gradient">بخطوات بسيطة.</span></h1>
+    <p class="lead">اكتب المعادلة الرياضية وشوف الحل خطوة بخطوة. ابدأ بالمعادلات الخطية والتربيعية، وتعلّم طريقة الوصول للإجابة بسهولة.</p>
+  </div>
+  <div class="hero-art" aria-label="رسم توضيحي لمعادلات رياضية"><div class="math-card"><div class="formula">2x + 5 = 13</div><div class="formula">x² − 5x + 6 = 0</div><div class="small">SOLVE · LEARN · IMPROVE</div></div></div>
+</section>
+<main>
+  <section class="solver-card">
+    <div class="section-head"><div><h2>جرّب حاسبة المعادلات</h2><p>اكتب معادلة بمجهول واحد (x)، واستخدم علامة = بين الطرفين.</p></div><span class="status">● جاهز للتجربة</span></div>
+    <div class="input-row"><input id="equation" type="text" value="2x + 5 = 13" aria-label="اكتب المعادلة" placeholder="مثال: 2x + 5 = 13" autocomplete="off"><button id="solve" class="solve-btn">حل المعادلة ←</button></div>
+    <div class="hint">يدعم المعادلات الخطية والتربيعية، وكذلك الدوال المثلثية والأسية والزائدية مثل sin(x)=0 و e^x=2</div>
+    <div class="examples"><span class="examples-label">أمثلة سريعة:</span><button class="example" data-eq="2x + 5 = 13">2x + 5 = 13</button><button class="example" data-eq="3x - 6 = 9">3x - 6 = 9</button><button class="example" data-eq="x^2 - 5x + 6 = 0">x^2 - 5x + 6 = 0</button><button class="example" data-eq="x^2 + 1 = 0">x^2 + 1 = 0</button></div>
+    <section class="symbol-keyboard" aria-label="لوحة الرموز الرياضية">
+      <h3>الرموز الرياضية</h3>
+      <p>اضغط على الرمز لإضافته في مكان المؤشر داخل المعادلة.</p>
+      <div class="symbol-grid">
+        <button type="button" class="symbol-key" data-symbol="+">+</button>
+        <button type="button" class="symbol-key" data-symbol="−">−</button>
+        <button type="button" class="symbol-key" data-symbol="×">×</button>
+        <button type="button" class="symbol-key" data-symbol="÷">÷</button>
+        <button type="button" class="symbol-key" data-symbol="=">=</button>
+        <button type="button" class="symbol-key" data-symbol="^2">x²</button>
+        <button type="button" class="symbol-key" data-symbol="^">^</button>
+        <button type="button" class="symbol-key" data-symbol="x">x</button>
+        <button type="button" class="symbol-key" data-symbol="(">(</button>
+        <button type="button" class="symbol-key" data-symbol=")">)</button>
+        <button type="button" class="symbol-key" data-symbol=".">.</button>
+        <button type="button" class="symbol-key" data-symbol="0">0</button>
+        <button type="button" class="symbol-key" data-symbol="1">1</button>
+        <button type="button" class="symbol-key" data-symbol="2">2</button>
+        <button type="button" class="symbol-key" data-symbol="3">3</button>
+        <button type="button" class="symbol-key" data-symbol="4">4</button>
+        <button type="button" class="symbol-key" data-symbol="5">5</button>
+        <button type="button" class="symbol-key" data-symbol="6">6</button>
+        <button type="button" class="symbol-key" data-symbol="7">7</button>
+        <button type="button" class="symbol-key" data-symbol="8">8</button>
+        <button type="button" class="symbol-key" data-symbol="9">9</button>
+        <button type="button" class="symbol-key symbol-delete" data-action="backspace">⌫</button>
+        <button type="button" class="symbol-key symbol-clear" data-action="clear">مسح</button>
+      </div>
+    </section>
+    <div id="error" class="error" role="alert"></div>
+    <section id="result" class="result" aria-live="polite"><h3>النتيجة وخطوات الحل</h3><div id="answer" class="answer"></div><div id="steps" class="steps"></div></section>
+  </section>
+  <section class="features">
+    <article class="feature"><div class="feature-icon">∑</div><h3>حل المعادلات</h3><p>حل المعادلات الخطية والتربيعية وبعض المعادلات المثلثية والأسية والزائدية.</p></article>
+    <article class="feature"><div class="feature-icon">↗</div><h3>خطوة بخطوة</h3><p>شوف التحويلات الأساسية اللي بتوصلك للحل بدل ما تكتفي بالنتيجة.</p></article>
+    <article class="feature"><div class="feature-icon">✓</div><h3>تعلّم بالتجربة</h3><p>اكتب المعادلة أو استخدم لوحة الرموز الرياضية للتدرب بنفسك.</p></article>
+  </section>
+  <section class="applications" aria-labelledby="applications-title">
+    <div class="applications-head">
+      <div class="applications-kicker">MATH IN THE REAL WORLD</div>
+      <h2 id="applications-title">Where Do We Use Math in Our Lives?</h2>
+      <p>الرياضيات مش مجرد أرقام في كتاب؛ الدوال والمعادلات أدوات بنستخدمها لفهم العالم وحل مشكلات الحياة اليومية.</p>
+    </div>
+    <div class="application-grid">
+      <article class="application-item"><div class="application-symbol">🏗️</div><h3>Engineering & Architecture</h3><p>المعادلات تساعد المهندسين في حساب الأبعاد والأحمال وتصميم المباني والجسور بأمان.</p></article>
+      <article class="application-item"><div class="application-symbol">🚀</div><h3>Science & Space</h3><p>الدوال تصف الحركة والسرعة والمسارات، وتساعد العلماء على دراسة الظواهر والفضاء.</p></article>
+      <article class="application-item"><div class="application-symbol">💳</div><h3>Finance & Business</h3><p>نستخدم الرياضيات لحساب الميزانيات والأسعار والأرباح والفوائد ومقارنة الاختيارات.</p></article>
+      <article class="application-item"><div class="application-symbol">💻</div><h3>Technology</h3><p>الرياضيات تدخل في البرمجة وتحليل البيانات والرسوم الرقمية وتطوير الذكاء الاصطناعي.</p></article>
+      <article class="application-item"><div class="application-symbol">🩺</div><h3>Medicine</h3><p>تساعد الحسابات والإحصاء في قراءة نتائج الفحوصات وتحليل الصور والبيانات الطبية.</p></article>
+      <article class="application-item"><div class="application-symbol">🧭</div><h3>Everyday Life</h3><p>نستخدمها لتقدير الوقت والمسافات والسرعة والكميات والتخطيط للمشتريات والرحلات.</p></article>
+    </div>
+    <p class="application-note">من فكرة صغيرة إلى اختراع كبير — الرياضيات تساعدنا نفهم ونبني ونطوّر.</p>
+  </section>
+</main>
+<footer>MathSolver © 2026 · اتعلّم الرياضيات خطوة بخطوة</footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mathjs@14.8.1/lib/browser/math.js"></script>
+<script>
+// Polynomial solver plus numerical support for advanced functions.
+function tokenize(s) {
+  s = s.replace(/[−–]/g, '-').replace(/[×·]/g, '*').replace(/÷/g, '/').replace(/²/g, '^2').replace(/\s+/g, '').toLowerCase();
+  const raw = s.match(/\d+(?:\.\d+)?|x|[()+\-*/^]/g) || [];
+  if (raw.join('') !== s) throw new Error('فيه رمز غير مدعوم. استخدم الأرقام و x والعمليات + − * / ^ والأقواس.');
+  const out=[];
+  for(let i=0;i<raw.length;i++){
+    const t=raw[i]; out.push(t);
+    const next=raw[i+1];
+    if(next && (t==='x' || /^\d/.test(t) || t===')') && (next==='x' || next==='(' || /^\d/.test(next))) out.push('*');
+  }
+  return out;
+}
+function add(a,b){return [a[0]+b[0],a[1]+b[1],a[2]+b[2]];}
+function mul(a,b){const r=[0,0,0];for(let i=0;i<3;i++)for(let j=0;j<3;j++){if(i+j>2 && Math.abs(a[i]*b[j])>1e-12)throw new Error('الموقع يدعم المعادلات حتى الدرجة الثانية حاليًا.');if(i+j<=2)r[i+j]+=a[i]*b[j];}return r;}
+function parsePoly(expr){
+ const t=tokenize(expr); let p=0;
+ function primary(){let v;if(t[p]==='+'){p++;return primary();}if(t[p]==='-'){p++;return scale(primary(),-1);}if(t[p]==='('){p++;v=expression();if(t[p]!==')')throw new Error('راجع الأقواس في المعادلة.');p++;}else if(t[p]==='x'){p++;v=[0,1,0];}else if(t[p] && /^\d/.test(t[p])){v=[Number(t[p++]),0,0];}else throw new Error('مش قادر أقرأ المعادلة. تأكد من كتابتها بشكل صحيح.');
+ if(t[p]==='^'){p++;if(t[p]!=='2' && t[p]!=='1' && t[p]!=='0')throw new Error('الأس المسموح به هنا هو 0 أو 1 أو 2.');const n=Number(t[p++]);if(n===0)v=[1,0,0];else if(n===2)v=mul(v,v);}
+ return v;}
+ function scale(a,k){return a.map(x=>x*k)}
+ function term(){let v=primary();while(t[p]==='*'||t[p]==='/'){const op=t[p++],b=primary();if(op==='*')v=mul(v,b);else{if(Math.abs(b[1])+Math.abs(b[2])>1e-12||Math.abs(b[0])<1e-12)throw new Error('القسمة لازم تكون على رقم ثابت غير الصفر.');v=scale(v,1/b[0]);}}return v;}
+ function expression(){let v=term();while(t[p]==='+'||t[p]==='-'){const op=t[p++],b=term();v=add(v,scale(b,op==='+'?1:-1));}return v;}
+ const result=expression();if(p!==t.length)throw new Error('راجع ترتيب العمليات في المعادلة.');return result;
+}
+function fmt(n){if(Math.abs(n)<1e-10)return '0';if(Math.abs(n-Math.round(n))<1e-9)return String(Math.round(n));return String(Number(n.toFixed(6)));}
+function solvePolynomialEquation(s){const parts=s.split('=');if(parts.length!==2||!parts[0].trim()||!parts[1].trim())throw new Error('اكتب معادلة فيها علامة = واحدة، مثل 2x+5=13.');const L=parsePoly(parts[0]),R=parsePoly(parts[1]);const c=add(L,R.map(v=>-v));const [C,B,A]=c;const steps=[];steps.push({text:'ننقل كل الحدود إلى طرف واحد لتصبح المعادلة مساوية للصفر.' ,math:`${fmt(A)}x² ${B<0?'−':'+'} ${fmt(Math.abs(B))}x ${C<0?'−':'+'} ${fmt(Math.abs(C))} = 0`});
+ if(Math.abs(A)<1e-10){if(Math.abs(B)<1e-10){if(Math.abs(C)<1e-10)return {answer:'كل قيم x تحقق المعادلة',steps:[{text:'بعد التبسيط، الطرفان متساويان لأي قيمة لـ x.',math:'0 = 0'}]};return {answer:'لا يوجد حل',steps:[{text:'اختفت حدود x وبقيت مساواة غير صحيحة.',math:`${fmt(C)} = 0`}]};}const x=-C/B;steps.push({text:'نجمع الحدود الثابتة في طرف وحدود x في الطرف الآخر.',math:`${fmt(B)}x = ${fmt(-C)}`});steps.push({text:'نقسم الطرفين على معامل x.',math:`x = ${fmt(-C)} ÷ ${fmt(B)}`});return {answer:`x = ${fmt(x)}`,steps};}
+ const D=B*B-4*A*C;steps.push({text:'نحسب المميّز باستخدام القانون Δ = b² − 4ac.',math:`Δ = (${fmt(B)})² − 4(${fmt(A)})(${fmt(C)}) = ${fmt(D)}`});if(D< -1e-10)return {answer:'لا توجد حلول حقيقية',steps:[...steps,{text:'لأن المميّز سالب، فلا توجد جذور حقيقية.',math:'Δ < 0'}]};if(Math.abs(D)<1e-10){const x=-B/(2*A);steps.push({text:'بما أن المميّز يساوي صفرًا، يوجد حل حقيقي مكرر.',math:`x = −b ÷ (2a) = ${fmt(x)}`});return {answer:`x = ${fmt(x)} (حل مكرر)`,steps};}const x1=(-B+Math.sqrt(D))/(2*A),x2=(-B-Math.sqrt(D))/(2*A);steps.push({text:'نستخدم القانون العام لإيجاد الجذرين.',math:`x = (−b ± √Δ) ÷ (2a)`});steps.push({text:'نعوّض بالقيم ونحسب الحلّين.',math:`x₁ = ${fmt(x1)} ، x₂ = ${fmt(x2)}`});return {answer:`x₁ = ${fmt(x1)}   |   x₂ = ${fmt(x2)}`,steps};}
+
+function normalizeAdvancedExpression(expr){
+  let s=expr.trim()
+    .replace(/[−–]/g,'-').replace(/[×·]/g,'*').replace(/÷/g,'/')
+    .replace(/π/g,'pi').replace(/²/g,'^2')
+    .replace(/\s+/g,'');
+  // Support common implicit multiplication: 2x, 2(x+1), x(x+1), and )(.
+  s=s.replace(/(\d)(x|pi|e|\()/gi,'$1*$2')
+     .replace(/(x|pi|e)\(/gi,'$1*(')
+     .replace(/\)(x|\d|pi|e|\()/gi,')*$1')
+     .replace(/(\d)([a-df-wyz])/gi,'$1*$2');
+  return s;
+}
+function solveAdvancedEquation(raw){
+  if(!window.math) throw new Error('محرك الدوال المتقدمة لم يتم تحميله. تأكد من اتصال الإنترنت ثم أعد تحميل الصفحة.');
+  const parts=raw.split('=');
+  if(parts.length!==2 || !parts[0].trim() || !parts[1].trim())
+    throw new Error('اكتب معادلة فيها علامة = واحدة، مثل sin(x)=0 أو e^x=2.');
+  const left=math.compile(normalizeAdvancedExpression(parts[0]));
+  const right=math.compile(normalizeAdvancedExpression(parts[1]));
+  const f=x=>{
+    const scope={x};
+    const a=left.evaluate(scope), b=right.evaluate(scope);
+    const value=(typeof a==='number'?a:Number(a))-(typeof b==='number'?b:Number(b));
+    return Number.isFinite(value)?value:NaN;
+  };
+  const roots=[];
+  const addRoot=x=>{
+    if(!Number.isFinite(x) || Math.abs(f(x))>1e-7) return;
+    if(!roots.some(r=>Math.abs(r-x)<1e-5)) roots.push(x);
+  };
+  const min=-180, max=180, step=0.05;
+  let x0=min, y0=f(x0);
+  for(let x1=min+step; x1<=max+step/2; x1+=step){
+    const y1=f(x1);
+    if(Number.isFinite(y0) && Math.abs(y0)<1e-9) addRoot(x0);
+    if(Number.isFinite(y0) && Number.isFinite(y1) && y0*y1<0){
+      let lo=x0, hi=x1, flo=y0;
+      for(let i=0;i<70;i++){
+        const mid=(lo+hi)/2, fm=f(mid);
+        if(!Number.isFinite(fm)) break;
+        if(Math.abs(fm)<1e-12){lo=hi=mid;break;}
+        if(flo*fm<=0) hi=mid;
+        else {lo=mid;flo=fm;}
+      }
+      addRoot((lo+hi)/2);
+    }
+    x0=x1; y0=y1;
+  }
+  if(Number.isFinite(y0) && Math.abs(y0)<1e-9) addRoot(x0);
+  roots.sort((a,b)=>a-b);
+  if(!roots.length){
+    throw new Error('لم يتم العثور على حل حقيقي داخل الفترة من -180 إلى 180. قد تكون المعادلة بلا حلول حقيقية أو تحتاج طريقة/فترة بحث مختلفة.');
+  }
+  const shown=roots.slice(0,8);
+  const formatted=shown.map((v,i)=>`x${shown.length>1?i+1:''} = ${fmt(v)}`);
+  const steps=[
+    {text:'تم تحويل طرفي المعادلة إلى دالة واحدة تساوي صفرًا.',math:'f(x) = الطرف الأيسر − الطرف الأيمن = 0'},
+    {text:'بحث المحرك عدديًا عن الجذور الحقيقية داخل الفترة من −50 إلى 50، ثم حسّن التقريب.',math:'نطاق البحث: −180 ≤ x ≤ 180'},
+    {text:'هذه الحلول التقريبية التي عثر عليها المحرك.',math:formatted.join('   |   ')}
+  ];
+  if(roots.length>8) steps.push({text:'يوجد المزيد من الجذور داخل نطاق البحث؛ تم عرض أول 8 جذور فقط.',math:`عدد الجذور المكتشفة: ${roots.length}`});
+  return {answer:formatted.join('   |   '),steps};
+}
+function solveEquation(s){
+  try { return solvePolynomialEquation(s); }
+  catch(polyError) {
+    // If the polynomial parser cannot handle the expression, try the advanced numerical engine.
+    try { return solveAdvancedEquation(s); }
+    catch(advancedError) {
+      if(advancedError.message && !advancedError.message.includes('لم يتم العثور'))
+        throw advancedError;
+      throw advancedError;
+    }
+  }
+}
+
+function runSolve(){const err=document.getElementById('error'),res=document.getElementById('result');err.style.display='none';res.classList.remove('show');try{const data=solveEquation(document.getElementById('equation').value);document.getElementById('answer').textContent=data.answer;const holder=document.getElementById('steps');holder.replaceChildren();data.steps.forEach((s,i)=>{const row=document.createElement('div');row.className='step';const num=document.createElement('span');num.className='step-num';num.textContent=i+1;const content=document.createElement('div');content.textContent=s.text;const math=document.createElement('div');math.className='step-math';math.textContent=s.math;content.appendChild(document.createElement('br'));content.appendChild(math);row.append(num,content);holder.appendChild(row);});res.classList.add('show');}catch(e){err.textContent=e.message||'حصل خطأ في المعادلة.';err.style.display='block';}}
+const equationInput=document.getElementById('equation');
+document.getElementById('solve').addEventListener('click',runSolve);
+equationInput.addEventListener('keydown',e=>{if(e.key==='Enter')runSolve();});
+document.querySelectorAll('.example').forEach(b=>b.addEventListener('click',()=>{
+  equationInput.value=b.dataset.eq;
+  equationInput.focus();
+  document.getElementById('error').style.display='none';
+  document.getElementById('result').classList.remove('show');
+}));
+document.querySelectorAll('.symbol-key').forEach(button=>button.addEventListener('click',()=>{
+  const action=button.dataset.action;
+  const start=equationInput.selectionStart ?? equationInput.value.length;
+  const end=equationInput.selectionEnd ?? start;
+  let value=equationInput.value;
+  let cursor=start;
+  if(action==='clear'){
+    equationInput.value='';
+    cursor=0;
+  } else if(action==='backspace'){
+    if(start!==end){
+      equationInput.value=value.slice(0,start)+value.slice(end);
+      cursor=start;
+    } else if(start>0){
+      equationInput.value=value.slice(0,start-1)+value.slice(end);
+      cursor=start-1;
+    }
+  } else {
+    const symbol=button.dataset.symbol || '';
+    equationInput.value=value.slice(0,start)+symbol+value.slice(end);
+    cursor=start+symbol.length;
+  }
+  equationInput.focus();
+  equationInput.setSelectionRange(cursor,cursor);
+  document.getElementById('error').style.display='none';
+  document.getElementById('result').classList.remove('show');
+}));
+runSolve();
+</script>
+</body>
+</html>
